@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deletar Tarefa</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f0f4f8;
+      }
+      .delete-icon {
+        animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both infinite;
+        transform: translate3d(0, 0, 0);
+        backface-visibility: hidden;
+        perspective: 1000px;
+      }
+      @keyframes shake {
+        10%, 90% { transform: translate3d(-1px, 0, 0); }
+        20%, 80% { transform: translate3d(2px, 0, 0); }
+        30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+        40%, 60% { transform: translate3d(4px, 0, 0); }
+      }
+      .hover-scale {
+        transition: transform 0.3s ease;
+      }
+      .hover-scale:hover {
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-red-100 to-pink-200 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <div class="bg-white rounded-2xl shadow-2xl p-8 transform hover:shadow-3xl transition duration-300 ease-in-out hover-scale">
+        <div class="text-center mb-8">
+          <i class="fas fa-exclamation-triangle text-5xl text-yellow-500 mb-4 delete-icon"></i>
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            Deletar Tarefa
+          </h1>
+          <p class="text-gray-600">
+            Tem certeza que deseja deletar a tarefa
+          </p>
+          <p class="text-red-600 font-semibold text-lg mt-2">
+            "{{ object.nome_tarefa }}"
+          </p>
+        </div>
+
+        <form method="post" class="space-y-6">
+          {% csrf_token %}
+          <div class="flex justify-center space-x-4">
+            <button
+              type="submit"
+              class="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-8 rounded-full transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 shadow-md hover:shadow-lg"
+            >
+              <i class="fas fa-trash-alt mr-2"></i>Deletar
+            </button>
+            <a
+              href="{% url 'atualizar' pk=object.pk %}"
+              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-8 rounded-full transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 shadow-md hover:shadow-lg"
+            >
+              <i class="fas fa-times mr-2"></i>Cancelar
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

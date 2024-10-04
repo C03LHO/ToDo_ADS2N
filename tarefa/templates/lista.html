@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minhas Tarefas</title>
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+        rel="stylesheet"
+    />
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+        rel="stylesheet"
+    />
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
+        body {
+            font-family: "Poppins", sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .task-enter {
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .logo-spin:hover {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        .hover-transform:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        .task-completed {
+            text-decoration: line-through;
+            color: #10b981;
+        }
+        #stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            display: none;
+        }
+        .star {
+            position: absolute;
+            background-color: #fff;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            opacity: 0;
+            animation: starAnimation 8s linear infinite;
+        }
+        @keyframes starAnimation {
+            0% {
+                transform: translateY(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+        }
+        .cloud-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #e6f3ff;
+            z-index: -1;
+            overflow: hidden;
+            display: none;
+        }
+        .cloud {
+            position: absolute;
+            width: 200px;
+            height: 60px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 30"><path fill="%23FFF" d="M0 30 Q25 0 50 15 T100 30 Z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.7;
+            animation: moveCloud linear infinite;
+        }
+        @keyframes moveCloud {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(calc(100vw + 200px));
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen transition-colors duration-300">
+    <div id="stars"></div>
+    <div class="cloud-background" id="cloudBackground"></div>
+    <div class="container mx-auto px-4 py-8 max-w-md">
+        <div class="flex justify-between items-center mb-6">
+            <div class="bg-white rounded-full p-3 shadow-lg logo-spin">
+                <i class="fas fa-tasks text-4xl text-purple-600"></i>
+            </div>
+            <button
+                id="darkModeToggle"
+                class="bg-gray-200 p-2 rounded-full focus:outline-none"
+            >
+                <i class="fas fa-moon text-gray-600"></i>
+            </button>
+        </div>
+        <h1 class="text-4xl font-bold text-center mb-8 text-purple-800">
+            Minhas Tarefas
+        </h1>
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            {% if tarefas %}
+            <ul class="space-y-3">
+                {% for tarefa in tarefas %}
+                <li
+                    class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow hover:shadow-md transition duration-300 task-enter hover-transform"
+                >
+                    <div class="flex items-center flex-grow">
+                        <input
+                            type="checkbox"
+                            class="form-checkbox h-5 w-5 text-green-500 rounded mr-3 task-checkbox"
+                            data-task-id="{{ tarefa.pk }}"
+                        />
+                        <span class="text-gray-700 task-name"
+                            >{{ tarefa.nome_tarefa }}</span
+                        >
+                    </div>
+                    <div class="flex space-x-2">
+                        <a
+                            href="{% url 'atualizar' tarefa.pk %}"
+                            class="text-blue-500 hover:text-blue-600 transition duration-300"
+                        >
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a
+                            href="{% url 'deletar' tarefa.pk %}"
+                            class="text-red-500 hover:text-red-600 transition duration-300"
+                        >
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-center text-gray-500 italic">
+                Nenhuma tarefa encontrada.
+            </p>
+            {% endif %}
+        </div>
+        <a
+            href="{% url 'nova' %}"
+            class="block w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 px-4 rounded-lg text-center transition duration-300 mt-6 transform hover:scale-105 hover:shadow-lg"
+        >
+            <i class="fas fa-plus mr-2"></i>Nova Tarefa
+        </a>
+    </div>
+    <script>
+        function createStars() {
+            const starsContainer = document.getElementById("stars");
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement("div");
+                star.className = "star";
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.top = `${Math.random() * 100}vh`;
+                star.style.animationDuration = `${Math.random() * 4 + 6}s`;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function createClouds() {
+            const cloudBackground = document.getElementById("cloudBackground");
+            const viewportWidth = window.innerWidth;
+            for (let i = 0; i < 5; i++) {
+                const cloud = document.createElement("div");
+                cloud.className = "cloud";
+                
+                // Posiciona as nuvens uniformemente ao longo da largura da tela
+                const startPosition = (i / 5) * (viewportWidth + 200);
+                cloud.style.left = `${startPosition}px`;
+                
+                cloud.style.top = `${Math.random() * 80}%`;
+                
+                // Ajusta a duração da animação
+                const duration = Math.random() * 60 + 60; // 60 a 120 segundos
+                cloud.style.animationDuration = `${duration}s`;
+                
+                // Remove o atraso inicial da animação
+                cloud.style.animationDelay = '0s';
+                
+                cloudBackground.appendChild(cloud);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", (event) => {
+            createStars();
+            createClouds();
+            const taskItems = document.querySelectorAll(".task-enter");
+            taskItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.1}s`;
+            });
+            const darkModeToggle = document.getElementById("darkModeToggle");
+            const body = document.body;
+            const html = document.documentElement;
+            const cloudBackground = document.getElementById("cloudBackground");
+            function setDarkMode(isDark) {
+                if (isDark) {
+                    html.classList.add("dark");
+                    darkModeToggle.innerHTML =
+                        '<i class="fas fa-sun text-yellow-300"></i>';
+                    body.classList.remove("bg-gray-100");
+                    body.classList.add("bg-gray-900", "text-white");
+                    document.getElementById("stars").style.display = 'block';
+                    cloudBackground.style.display = 'none';
+                } else {
+                    html.classList.remove("dark");
+                    darkModeToggle.innerHTML =
+                        '<i class="fas fa-moon text-gray-600"></i>';
+                    body.classList.remove("bg-gray-900", "text-white");
+                    body.classList.add("bg-gray-100");
+                    document.getElementById("stars").style.display = 'none';
+                    cloudBackground.style.display = 'block';
+                }
+            }
+            darkModeToggle.addEventListener("click", () => {
+                const isDark = !html.classList.contains("dark");
+                setDarkMode(isDark);
+                localStorage.setItem("darkMode", isDark);
+            });
+            const savedDarkMode = localStorage.getItem("darkMode") === "true";
+            setDarkMode(savedDarkMode);
+            const checkboxes = document.querySelectorAll(".task-checkbox");
+            checkboxes.forEach((checkbox) => {
+                checkbox.addEventListener("change", function () {
+                    const taskName = this.nextElementSibling;
+                    if (this.checked) {
+                        taskName.classList.add("task-completed");
+                    } else {
+                        taskName.classList.remove("task-completed");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
